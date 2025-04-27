@@ -15,42 +15,6 @@ def geocode(address):
     return response.json()
 
 
-def get_coordinates(city):
-    data = geocode(city)
-    pos = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
-    longitude, latitude = pos.split()
-    return float(latitude), float(longitude)
-
-
-def get_point_coordinates(address):
-    data = geocode(address)
-    try:
-        pos = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
-        return pos.replace(' ', ',')
-    except IndexError:
-        return None
-
-
-def get_federal_district(city):
-    data = geocode(city)
-    try:
-        district = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
-            'GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea']['AdministrativeAreaName']
-        return district
-    except IndexError:
-        return "Не удалось определить"
-
-
-def get_postal_code(address):
-    data = geocode(address)
-    try:
-        postal_code = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
-            'GeocoderMetaData']['Address']['postal_code']
-        return postal_code
-    except IndexError:
-        return "Не удалось определить"
-
-
 def get_full_address(address):
     data = geocode(address)
     try:
@@ -58,7 +22,7 @@ def get_full_address(address):
             'GeocoderMetaData']['Address']['formatted']
         pos = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
         return full_address, pos
-    except IndexError:
+    except:
         return None, None
 
 
@@ -68,7 +32,17 @@ def get_region(city):
         region = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
             'GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea']['AdministrativeAreaName']
         return region
-    except IndexError:
+    except:
+        return "Не удалось определить"
+
+
+def get_postal_code(address):
+    data = geocode(address)
+    try:
+        postal_code = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
+            'GeocoderMetaData']['Address']['postal_code']
+        return postal_code
+    except:
         return "Не удалось определить"
 
 
@@ -76,6 +50,15 @@ def save_map_image(filename, params):
     response = requests.get(STATIC_MAPS_URL, params=params)
     with open(filename, 'wb') as f:
         f.write(response.content)
+
+
+def get_string_coordinates(address):
+    data = geocode(address)
+    try:
+        pos = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
+        return pos.replace(' ', ',')
+    except:
+        return None
 
 
 def get_southernmost_city(cities):
@@ -89,7 +72,7 @@ def get_southernmost_city(cities):
             if lat < min_lat:
                 min_lat = lat
                 southern_city = city
-        except IndexError:
+        except:
             continue
     return southern_city
 
@@ -125,16 +108,32 @@ print("Снимок сохранен в australia.jpg")
 
 # 7
 print("\nКарта Кемерово с отметками")
-points = {
+points = [
     ("ЖД Вокзал", "Кемерово, Кемерово-Пасс."),
     ("Кардиодиспансер", "Кемерово, Кардиоцентр"),
-    ("Красная Горка") 
+    ("Красная Горка", "Кемерово, Музей-заповедник Красная Горка"),
+    ("Парк Победы", "Кемерово, Парк Победы имени Георгия Константиновича Жукова")
+]
+
+pt_params = []
+for label, address in points:
+    coords = get_string_coordinates(address)
+    if coords:
+        pt_params.append(f"{coords},pm2rdm")
+
+params = {
+    "l": "map",
+    "pt": "~".join(pt_params),
+    "size": "650,450"
 }
+save_map_image("kemerovo.jpg", params)
+print("Карта сохранена в kemerovo.jpg")
+
 # 8
 print("\nКарта области с маршрутом")
 route_coords = []
 for city in ["Кемерово", "Ленинск-Кузнецкий", "Новокузнецк", "Шерегеш"]:
-    coords = get_point_coordinates(city)
+    coords = get_string_coordinates(city)
     print(coords)
     if coords:
         route_coords.append(coords)
