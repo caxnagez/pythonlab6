@@ -155,7 +155,7 @@ cities = [city.strip() for city in input_cities if city.strip()]
 southern_city = get_southernmost_city(cities)
 print(f"Самый южный город: {southern_city}")
 
-#10
+# 10
 print("\nДлина пути:")
 points = [
     "86.102792,55.358422",  # Кемерово

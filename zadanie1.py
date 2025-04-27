@@ -3,7 +3,7 @@ import requests
 API_KEY = "d053f8e4-fb49-498a-8dbe-0ba34403c7c4"
 BASE_URL = "https://geocode-maps.yandex.ru/1.x/"
 
-#1
+# 1
 def get_map_image(ll, spn, l, filename):
     url = f"https://static-maps.yandex.ru/1.x/?ll={ll}&spn={spn}&l={l}"
     response = requests.get(url)
@@ -22,7 +22,7 @@ get_map_image("158.6633,53.0369", "0.01,0.01", "sat", "vulkan.png")
 get_map_image("105.0009,53.5587", "0.05,0.05", "sat", "baikal.png")
 get_map_image("63.3055,45.9656", "0.05,0.05", "sat", "baikonur.png")
 
-#2
+# 2
 def geocode(address):
     params = {
         "apikey": API_KEY,
